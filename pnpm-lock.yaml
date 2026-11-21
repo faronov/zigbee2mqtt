@@ -4,6 +4,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  zigbee-herdsman: https://github.com/faronov/zigbee-herdsman/releases/download/v11.2.2-zrhp.13/zigbee-herdsman-11.2.2-zrhp.13.tgz
+
 importers:
 
   .:
@@ -54,8 +57,8 @@ importers:
         specifier: ^8.22.0
         version: 8.22.0
       zigbee-herdsman:
-        specifier: 11.2.0
-        version: 11.2.0(supports-color@7.2.0)
+        specifier: https://github.com/faronov/zigbee-herdsman/releases/download/v11.2.2-zrhp.13/zigbee-herdsman-11.2.2-zrhp.13.tgz
+        version: https://github.com/faronov/zigbee-herdsman/releases/download/v11.2.2-zrhp.13/zigbee-herdsman-11.2.2-zrhp.13.tgz(supports-color@7.2.0)
       zigbee-herdsman-converters:
         specifier: 26.125.0
         version: 26.125.0(supports-color@7.2.0)
@@ -792,6 +795,10 @@ packages:
     resolution: {integrity: sha512-64byRbF0/AirwbuHqB3/ZpMG9/nckDa6ZA0yd6UnaQNwbbemCOwvz2sL5sjXLHhZHADyiwLm0M5qMhltUUx+TA==}
     engines: {node: '>=20'}
 
+  debounce@4.0.0:
+    resolution: {integrity: sha512-o6nMNFRtqLR6mRlyt0b21cgYPSKAEMZFpROIRS9ZRH6hhSJWvGErqeSCJnWyiwVQYMSw7f/DZLilF5YRDwFz7w==}
+    engines: {node: '>=22.2'}
+
   debug@4.4.0:
     resolution: {integrity: sha512-6WTZ/IxCY/T6BALoZHaE4ctp9xm+Z5kY/pzYaCHRFeyVhojxlrm+46y68HA6hr0TcwEssoxNiDEUJQjfPZ/RYA==}
     engines: {node: '>=6.0'}
@@ -1279,8 +1286,9 @@ packages:
     resolution: {integrity: sha512-ZHOPORTkaWnGYuwFhK0EldJzUqQOl+fDhNx9yEte7zjp8I9vw7+XPZis6MBCTnaWxKcunifOfg4e6/nfaUIiUw==}
     engines: {node: ^22.2.0 || ^24 || <=26.2}
 
-  zigbee-herdsman@11.2.0:
-    resolution: {integrity: sha512-aHDSk8Opv3DKTaN6HPmrP+KssHxr/6pknHUWHJ5UsQIaFg4x+blk19FONoj0Had2HmMlVPRFyhxUnS4aK/eKcA==}
+  zigbee-herdsman@https://github.com/faronov/zigbee-herdsman/releases/download/v11.2.2-zrhp.13/zigbee-herdsman-11.2.2-zrhp.13.tgz:
+    resolution: {integrity: sha512-c8PYzocgDOmgDihbqqhjULRIXyVC0cj629U3gP9LmRtN0/mvRFokadHcZRx2irr8YkVD0YObt50NxC+c3XR9yQ==, tarball: https://github.com/faronov/zigbee-herdsman/releases/download/v11.2.2-zrhp.13/zigbee-herdsman-11.2.2-zrhp.13.tgz}
+    version: 11.2.2-zrhp.13
     engines: {node: ^22.2.0 || ^24 || <=26.2}
 
   zigbee-on-host@0.3.2:
@@ -1786,6 +1794,8 @@ snapshots:
 
   debounce@3.0.0: {}
 
+  debounce@4.0.0: {}
+
   debug@4.4.0(supports-color@7.2.0):
     dependencies:
       ms: 2.1.3
@@ -2270,18 +2280,18 @@ snapshots:
     dependencies:
       iconv-lite: 0.7.3
       semver: 7.8.5
-      zigbee-herdsman: 11.2.0(supports-color@7.2.0)
+      zigbee-herdsman: https://github.com/faronov/zigbee-herdsman/releases/download/v11.2.2-zrhp.13/zigbee-herdsman-11.2.2-zrhp.13.tgz(supports-color@7.2.0)
     transitivePeerDependencies:
       - supports-color
 
-  zigbee-herdsman@11.2.0(supports-color@7.2.0):
+  zigbee-herdsman@https://github.com/faronov/zigbee-herdsman/releases/download/v11.2.2-zrhp.13/zigbee-herdsman-11.2.2-zrhp.13.tgz(supports-color@7.2.0):
     dependencies:
       '@date-fns/tz': 1.5.0
       '@serialport/bindings-cpp': 13.0.1(supports-color@7.2.0)
       '@serialport/parser-delimiter': 13.0.0
       '@serialport/stream': 13.0.0(supports-color@7.2.0)
       bonjour-service: 1.4.4
-      debounce: 3.0.0
+      debounce: 4.0.0
       fast-deep-equal: 3.1.3
       slip: 1.0.2
       zigbee-on-host: 0.3.2
