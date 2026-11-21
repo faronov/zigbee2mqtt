@@ -1,3 +1,38 @@
+# This fork: Zigbee2MQTT for zigbee-rs NCPs (branch `zrhp`)
+
+This fork ([faronov/zigbee2mqtt](https://github.com/faronov/zigbee2mqtt), branch `zrhp`) is Zigbee2MQTT 2.14.3 with
+`serial.adapter: zrhp` for [zigbee-rs](https://github.com/faronov/zigbee-rs) network co-processors (ESP32-H2 / ESP32-C6
+DevKits, ZRHP host protocol). It is not an upstream contribution. Changes against 2.14.3:
+
+- `zrhp` in the adapter enum of `lib/util/settings.schema.json` (stock Zigbee2MQTT rejects `adapter: zrhp`) and in the
+  `adapter` type of `lib/types/api.ts`; a settings test;
+- zigbee-herdsman is the ZRHP build of [faronov/zigbee-herdsman](https://github.com/faronov/zigbee-herdsman) branch
+  `zrhp` (a GitHub release asset, pinned in `package.json` and, for zigbee-herdsman-converters, in the `overrides` of
+  `pnpm-workspace.yaml`);
+- CI ([`.github/workflows/zrhp.yml`](.github/workflows/zrhp.yml)): frozen install on Linux and Windows, check, build,
+  tests, and Zigbee2MQTT end to end on the zigbee-rs NCP simulator.
+
+Install (Linux, macOS, Windows PowerShell; Node.js 22 or 24 and Git):
+
+```sh
+npm install -g pnpm@11.26.0
+git clone -b zrhp https://github.com/faronov/zigbee2mqtt.git zigbee2mqtt-zrhp
+cd zigbee2mqtt-zrhp
+pnpm install --frozen-lockfile
+pnpm run build
+pnpm start            # data directory: ./data, or set ZIGBEE2MQTT_DATA
+```
+
+Tester guide (hardware, NCP firmware, flashing, configuration, what to test, rollback):
+[zrhp-z2m-testing.md](https://github.com/faronov/zigbee-herdsman/blob/zrhp/docs/zrhp-z2m-testing.md)
+([Русская версия](https://github.com/faronov/zigbee-herdsman/blob/zrhp/docs/zrhp-z2m-testing.ru.md)).
+
+Updating the herdsman build: replace the release URL in `package.json` and `pnpm-workspace.yaml` with the newest
+[`v*-zrhp.*` release](https://github.com/faronov/zigbee-herdsman/releases), then refresh `pnpm-lock.yaml` (`pnpm install`,
+or run this workflow with `lockfile: true` and commit its artifact).
+
+---
+
 <div align="center">
     <a href="https://github.com/koenkk/zigbee2mqtt">
         <img width="150" height="150" src="images/logo.png">

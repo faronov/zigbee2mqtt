@@ -11,3 +11,10 @@ minimumReleaseAgeExclude:
   - zigbee2mqtt-windfront
   - zigbee2mqtt-frontend
   - zigbee-on-host@0.3.2
+
+# ZRHP fork: every zigbee-herdsman in the tree (also zigbee-herdsman-converters') is the build of faronov/zigbee-herdsman
+# branch zrhp (release asset; bump both URLs together). The override reaches zigbee-herdsman-converters' dependency, which
+# pnpm only allows for URL dependencies with blockExoticSubdeps off.
+blockExoticSubdeps: false
+overrides:
+  zigbee-herdsman: https://github.com/faronov/zigbee-herdsman/releases/download/v11.2.2-zrhp.13/zigbee-herdsman-11.2.2-zrhp.13.tgz

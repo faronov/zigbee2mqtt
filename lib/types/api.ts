@@ -139,7 +139,7 @@ export type Zigbee2MQTTSettings = {
     serial: {
         disable_led: boolean;
         port?: string;
-        adapter?: "deconz" | "zstack" | "ezsp" | "zigate" | "ember" | "zboss" | "zoh";
+        adapter?: "deconz" | "zstack" | "ezsp" | "zigate" | "ember" | "zboss" | "zoh" | "zrhp";
         baudrate?: number;
         rtscts?: boolean;
     };

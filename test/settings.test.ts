@@ -839,6 +839,19 @@ describe("Settings", () => {
         expect(settings.validate()).toEqual(expect.arrayContaining([error]));
     });
 
+    it("Should accept the ZRHP adapter (zigbee-rs NCP) and reject unknown adapters", () => {
+        write(configurationFile, {...minimalConfig, serial: {port: "COM7", adapter: "zrhp"}});
+        settings.reRead();
+        expect(settings.validate()).toStrictEqual([]);
+        expect(settings.get().serial.adapter).toStrictEqual("zrhp");
+
+        write(configurationFile, {...minimalConfig, serial: {port: "COM7", adapter: "zrhp2"}});
+        settings.reRead();
+        expect(settings.validate()).toEqual(
+            expect.arrayContaining([expect.stringContaining("serial/adapter must be equal to one of the allowed values")]),
+        );
+    });
+
     it("Should validate if settings do not conform to scheme", () => {
         write(configurationFile, {
             ...minimalConfig,

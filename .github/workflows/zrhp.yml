@@ -1,0 +1,112 @@
+name: ZRHP
+
+# CI of the fork's `zrhp` branch: Zigbee2MQTT with the ZRHP zigbee-herdsman (faronov/zigbee-herdsman, release asset pinned
+# in package.json and pnpm-workspace.yaml): frozen install as a tester does it, check, build, tests, and an end-to-end run on
+# the Rust NCP simulator of zigbee-rs. `workflow_dispatch` with `lockfile: true` only refreshes pnpm-lock.yaml (artifact).
+
+on:
+    push:
+        branches: [zrhp, "zrhp-*"]
+    pull_request:
+        branches: [zrhp]
+    workflow_dispatch:
+        inputs:
+            lockfile:
+                description: "Only regenerate pnpm-lock.yaml (uploaded as an artifact)"
+                type: boolean
+                default: false
+
+permissions:
+    contents: read
+
+env:
+    ZIGBEE_RS_REPO: https://github.com/faronov/zigbee-rs.git
+    ZIGBEE_RS_REF: master
+    HERDSMAN_REPO: https://github.com/faronov/zigbee-herdsman.git
+    RUST_TOOLCHAIN: nightly-2026-03-23
+
+jobs:
+    lockfile:
+        if: github.event_name == 'workflow_dispatch' && inputs.lockfile
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v7
+            - uses: pnpm/action-setup@v6
+            - uses: actions/setup-node@v7
+              with:
+                  node-version: 24
+            - run: pnpm install --lockfile-only --no-frozen-lockfile
+            - uses: actions/upload-artifact@v4
+              with:
+                  name: pnpm-lock
+                  path: pnpm-lock.yaml
+
+    test:
+        if: github.event_name != 'workflow_dispatch' || !inputs.lockfile
+        name: Install (frozen), check, build, test
+        runs-on: ${{ matrix.os }}
+        strategy:
+            fail-fast: false
+            matrix:
+                os: [ubuntu-latest, windows-latest]
+        steps:
+            - uses: actions/checkout@v7
+            - uses: pnpm/action-setup@v6
+            - uses: actions/setup-node@v7
+              with:
+                  node-version: 24
+                  cache: pnpm
+            - run: pnpm i --frozen-lockfile
+            - name: The ZRHP herdsman is the only zigbee-herdsman in the tree
+              env:
+                  CHECK: |
+                      const fs = require("node:fs");
+                      const v = require("zigbee-herdsman/package.json").version;
+                      if (!/-zrhp\./.test(v)) throw new Error(`zigbee-herdsman ${v} is not the ZRHP build`);
+                      const main = require.resolve("zigbee-herdsman");
+                      if (!fs.existsSync(main.replace(/index\.js$/, "adapter/zrhp/adapter/zrhpAdapter.js"))) throw new Error("no ZRHP adapter");
+                      const copies = fs.readdirSync("node_modules/.pnpm").filter((d) => d.startsWith("zigbee-herdsman@"));
+                      console.log(`zigbee-herdsman ${v}; copies: ${copies.join(", ")}`);
+                      if (copies.length !== 1) throw new Error("more than one zigbee-herdsman in the tree");
+              shell: bash
+              run: node -e "$CHECK"
+            - if: matrix.os == 'ubuntu-latest'
+              run: pnpm run check
+            - run: pnpm run build
+            - if: matrix.os == 'ubuntu-latest'
+              run: pnpm run test:coverage
+            - if: matrix.os == 'windows-latest'
+              name: Settings validation accepts adapter zrhp (Windows)
+              run: pnpm exec vitest run --config ./test/vitest.config.mts test/settings.test.ts
+
+    e2e:
+        if: github.event_name != 'workflow_dispatch' || !inputs.lockfile
+        name: Zigbee2MQTT on the Rust NCP simulator
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v7
+            - name: zigbee-rs (ncp_sim) and the herdsman fork's scripts
+              run: |
+                  git clone --quiet --depth 1 --branch "$ZIGBEE_RS_REF" "$ZIGBEE_RS_REPO" "$RUNNER_TEMP/zigbee-rs"
+                  git clone --quiet --depth 1 --branch zrhp "$HERDSMAN_REPO" "$RUNNER_TEMP/zigbee-herdsman"
+            - uses: dtolnay/rust-toolchain@master
+              with:
+                  toolchain: ${{ env.RUST_TOOLCHAIN }}
+            - uses: Swatinem/rust-cache@v2
+              with:
+                  workspaces: ${{ runner.temp }}/zigbee-rs/apps/ncp-coordinator
+            - run: cargo build --manifest-path "$RUNNER_TEMP/zigbee-rs/apps/ncp-coordinator/Cargo.toml" --example ncp_sim --locked
+            - uses: pnpm/action-setup@v6
+            - uses: actions/setup-node@v7
+              with:
+                  node-version: 24
+                  cache: pnpm
+            - run: sudo apt-get update -qq && sudo apt-get install -y -qq socat mosquitto mosquitto-clients && sudo systemctl start mosquitto
+            - run: pnpm i --frozen-lockfile
+            - run: pnpm run build
+            - name: End to end
+              run: |
+                  mkdir -p .zrhp
+                  cp "$RUNNER_TEMP/zigbee-herdsman/scripts/zrhp/probe.js" .zrhp/probe.js
+                  bash "$RUNNER_TEMP/zigbee-herdsman/scripts/zrhp/e2e-z2m-sim.sh" "dir:$PWD" \
+                      "$RUNNER_TEMP/zigbee-rs/apps/ncp-coordinator/target/debug/examples/ncp_sim"
