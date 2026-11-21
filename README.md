@@ -23,6 +23,9 @@ pnpm run build
 pnpm start            # data directory: ./data, or set ZIGBEE2MQTT_DATA
 ```
 
+Read-only check of the NCP (Zigbee2MQTT stopped): `node scripts/zrhp-probe.js COM7` (Linux: the `/dev/serial/by-id/…`
+path, macOS: `/dev/cu.usbmodem…`).
+
 Tester guide (hardware, NCP firmware, flashing, configuration, what to test, rollback):
 [zrhp-z2m-testing.md](https://github.com/faronov/zigbee-herdsman/blob/zrhp/docs/zrhp-z2m-testing.md)
 ([Русская версия](https://github.com/faronov/zigbee-herdsman/blob/zrhp/docs/zrhp-z2m-testing.ru.md)).

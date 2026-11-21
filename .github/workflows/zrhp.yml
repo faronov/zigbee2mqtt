@@ -107,6 +107,6 @@ jobs:
             - name: End to end
               run: |
                   mkdir -p .zrhp
-                  cp "$RUNNER_TEMP/zigbee-herdsman/scripts/zrhp/probe.js" .zrhp/probe.js
+                  cp scripts/zrhp-probe.js .zrhp/probe.js   # the e2e script runs the probe from .zrhp/
                   bash "$RUNNER_TEMP/zigbee-herdsman/scripts/zrhp/e2e-z2m-sim.sh" "dir:$PWD" \
                       "$RUNNER_TEMP/zigbee-rs/apps/ncp-coordinator/target/debug/examples/ncp_sim"
